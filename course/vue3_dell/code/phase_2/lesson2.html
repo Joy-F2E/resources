@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="https://unpkg.com/vue@next"></script>
+</head>
+<style>
+  .red {
+    color: #f00;
+  }
+
+  .green {
+    color: green;
+  }
+</style>
+
+<body>
+  <div id="root">
+    <div v-html="message"></div>
+    <!-- v-once: 数据只渲染一次，后面数据变化不触发更改，降低无用渲染，提高渲染性能 -->
+    <div v-once>{{ message }}</div>
+    <div @click="handleClick" :[name]="message">{{ total }}</div>
+    <div :class="classString">
+      {{ message }}
+      <demo class="green"></demo>
+    </div>
+  </div>
+</body>
+
+<script>
+  // computed 和 method 都能实现的功能，建议使用computed，因为有缓存
+  // computed 和 watch 都能实现的功能，建议使用computed，因为更加简洁
+  const app = Vue.createApp({
+    data() {
+      return {
+        message: 'hello world',
+        name: 'title',
+        count: 2,
+        price: 10,
+        classString: 'red'
+      }
+    },
+    computed: {
+      // 能同时使用计算属性和方法处理数值时。尽量使用计算属性
+      total() {
+        return this.count * this.price
+      }
+    },
+    methods: {
+      handleClick() {
+        console.log(this.message);
+      }
+    },
+
+  })
+  // $attrs.class可以获取父组件上的class
+  app.component('demo', {
+    template: `
+      <div :class="$attrs.class">demo</div>
+    `
+  })
+  app.mount('#root')
+</script>
+
+</html>
