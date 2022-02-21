@@ -18,53 +18,171 @@
   // 全局组件：只要定义的了，处处可以使用，性能不高，使用简单
   // 局部组件：定义了，要注册之后才能使用，性能比较高，使用较麻烦
   // v-bind:params = :num="params.num" :count="params.count" ...
-  const counter = {
-    data() {
-      return {
-        count: 1
+  // const counter = {
+  //   data() {
+  //     return {
+  //       count: 1
+  //     }
+  //   },
+  //   template: `<div @click="count += 1">{{ count }}</div>`
+  // }
+
+  // const test = {
+  //   props: {
+  //     content: {
+  //       type: Number,
+  //       default: 456,
+  //       validator: function (value) {
+  //         return value < 1000
+  //       }
+  //     }
+  //   },
+  //   template: `<div @click="content += 1">{{ content }}</div>`
+  // }
+
+  // const CounterTest = {
+  //   inheritAttrs: false, // 不继承父组件传递过来的non-props属性
+  //   mounted() {
+  //     console.log(this.$attrs);
+  //   },
+  //   template: '<div v-bind="$attrs">Counter</div>'
+  // }
+
+  const Counter = {
+    props: {
+      modelValue: String,
+      modelModifiers: {
+        default: () => ({})
       }
     },
-    template: `<div @click="count += 1">{{ count }}</div>`
+    emits: ['update:modelValue'],
+    mounted() {
+      console.log(this.modelModifiers);
+    },
+    methods: {
+      handleClick() {
+        let value = this.modelValue;
+        if (this.modelModifiers.capitalize) {
+          console.log(value);
+          value = value.charAt(0).toUpperCase() + value.slice(1)
+        }
+        this.$emit('update:modelValue', value);
+      }
+    },
+    template: `
+      <div @click="handleClick">Counter - {{ modelValue }}</div>
+    `
   }
 
-  const test = {
-    props: {
-      content: {
-        type: Number,
-        default: 456,
-        validator: function (value) {
-          return value < 1000
-        }
+  const MyForm = {
+    methods: {
+      handleClick() {
+        alert(123456);
       }
     },
-    template: `<div @click="content += 1">{{ content }}</div>`
+    template: `
+      <div>
+        <span @click="handleClick">
+          <slot name="header"></slot>
+          <slot name="footer"></slot>
+        </span>
+      </div>
+    `
+  }
+
+  const CommonComponent = {
+    template: `<div>commonComponent</div>`
+  }
+
+  const SingleComponent = {
+    template: `<div>singleComponent</div>`
   }
 
   const app = Vue.createApp({
     components: {
-      counter,
-      test
+      Counter,
+      MyForm,
+      CommonComponent,
+      SingleComponent
     },
     data() {
       return {
-        num: 100
+        count: `abcedgfes`,
+        currentComponentItem: 'common-component'
+      }
+    },
+    methods: {
+      handleButtonClick() {
+        if (this.currentComponentItem === 'common-component') {
+          this.currentComponentItem = 'single-component';
+        } else {
+          this.currentComponentItem = 'common-component';
+        }
       }
     },
     template: `
-      <div><Hello /><World /></div>
-      <div><counter  /></div>
-      <test :content.sync="num" />
+      <Counter v-model.capitalize="count" />
+      <my-form>
+        <template v-slot:header>
+          <div>header</div>
+        </template>
+      </my-form>
+      <my-form>
+        <template v-slot:footer>
+          <button>footer</button>
+        </template>
+      </my-form>
+      <div>
+        <h3>作用域插槽</h3>
+        <list>
+          <template v-slot:default="slotProps">
+            <button>{{ slotProps.item }}</button>
+          </template>
+        </list>
+        <p>使用解构语法</p>
+        <list v-slot="{ item }">
+          <div>{{ item }}</div>
+        </list>
+      </div>
+
+      <div>
+        <h3>动态组件&异步组件</h3>
+        <button @click="handleButtonClick">组件切换</button>
+        <component :is="currentComponentItem"></component>
+
+        <h3>动态组件&异步组件</h3>
+        <sync-component />
+        <async-component />
+      </div>
     `
   });
 
-
-  app.component('Hello', {
-    template: '<div>hello</div>'
-  })
-  app.component('World', {
-    template: '<div>world</div>'
+  app.component('syncComponent', {
+    template: `<div>同步组件</div>`
   })
 
+  app.component('asyncComponent', Vue.defineAsyncComponent(() => {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve({
+          template: `<div>异步组件</div>`
+        })
+      }, 4000);
+    })
+  }))
+
+  app.component('list', {
+    data() {
+      return {
+        list: [1, 2, 3]
+      }
+    },
+    template: `
+      <div>
+        <slot v-for="item in list" :item="item"></slot>
+      </div>
+    `
+  })
 
   const vm = app.mount('#root')
 </script>
