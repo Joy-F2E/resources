@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>渲染函数</title>
+  <script src="https://unpkg.com/vue@next"></script>
+</head>
+<body>
+  <div id="root">
+    <root-component></root-component>
+  </div>
+</body>
+<script>
+  const app = Vue.createApp({})
+
+  const MyTitle = {
+    props: ['level'],
+    template: `
+      <h1 v-if="level === 1"><slot></slot></h1>
+      <h2 v-if="level === 2"><slot></slot></h2>
+      <h3 v-if="level === 3"><slot></slot></h3>
+      <h4 v-if="level === 4"><slot></slot></h4>
+    `
+  }
+
+  // render function：template -> render -> h() -> 虚拟DOM(JS对象) -> 真实DOM -> 展示到页面上 
+  const MyTitleRender = {
+    props: ['level'],
+    render() {
+      const { h } = Vue;
+      // 虚拟DOM => 实际就是一个JS对象，是对真实DOM的一个对象映射
+      // virtualDOM = {
+      //   tagName: 'h1',
+      //   text: hello,
+      //   attributes: {}
+      // }
+      const virtualDom = h('h' + this.level, {}, this.$slots.default());
+      return virtualDom
+    }
+  }
+
+  app.component('root-component', {
+    components: {
+      MyTitle,
+      MyTitleRender
+    },
+    template: `
+      <div>
+        <div>root component</div>
+        <my-title :level="2">myTitle</my-title>
+        <my-title-render :level="2">myTitleRender</my-title-render>
+      </div>
+    `
+  })
+
+  const vm = app.mount('#root')
+</script>
+</html>

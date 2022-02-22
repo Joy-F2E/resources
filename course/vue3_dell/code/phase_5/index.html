@@ -5,8 +5,100 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>第05章 Vue中的高级语法</title>
+  <script src="https://unpkg.com/vue@next"></script>
+  <style>
+    .header {
+      position: absolute;
+    }
+    .area {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 200px;
+      height: 200px;
+      background: #f00;
+    }
+    .mask {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+    }
+  </style>
 </head>
 <body>
-  
+  <div id="root">
+    <root-component></root-component>
+  </div>
 </body>
+<script>
+  const app = Vue.createApp({});
+
+  const DirectiveComponent = {
+    directives: {
+      focus: {
+        mounted(el) {
+          el.focus()
+        },
+      },
+      pos: {
+        mounted(el, binding) {
+          console.log(binding);
+          el.style[binding.arg] = binding.value;
+        },
+      }
+    },
+    data() {
+      return {
+        direction: 'left',
+        distance: '100px'
+      }
+    },
+    template: `
+      <div>
+        <h4>自定义指令</h4>
+        <input v-focus v-pos:[direction]="distance" class="header" />
+      </div>
+    `
+  }
+  
+
+  const TeleportComponent = {
+    data() {
+      return {
+        showMask: false
+      }
+    },
+    template: `
+      <div class="area">
+        <h4>teleport 传送门</h4>
+        <teleport to="body">
+          <div v-show="showMask" class="mask"></div>
+        </teleport>
+        
+        <button @click="showMask = true">点击</button>
+      </div>
+    `
+  }
+
+  app.component('root-component', {
+    components: {
+      DirectiveComponent,
+      TeleportComponent
+    },
+    template: `
+      <div>
+        <div>root component</div>
+        <directive-component></directive-component>
+        <teleport-component></teleport-component>
+      </div>
+    `
+  })
+  
+
+  const vm = app.mount('#root')
+</script>
 </html>
