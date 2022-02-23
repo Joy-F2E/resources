@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第06章 Componsition API</title>
+  <script src="https://unpkg.com/vue@next"></script>
+</head>
+<body>
+  <div id="root">
+    <root></root>
+  </div>
+</body>
+
+<script>
+  const app = Vue.createApp({})
+
+  app.component('root', {
+    template: `
+      <div>
+        <h2>setup function</h2>
+        <span @click="handleClick">currentValue: {{ testValue }}</span>
+        <p>reactiveValue: {{ reactiveObj.title }}</p>
+        <p>toRefValue: {{ toRefValue }}</p>
+      </div>
+    `,
+    setup(props, context) {
+      const { ref, reactive, toRefs } = Vue;
+      // ref处理基础类型的数据，通过 ref 将 'testValue' 变成 proxy({ value: 'testValue' })这样的一个响应式引用
+      let testValue = ref('testValue')
+      
+      // proxy, { title: 'reactiveTitle' } 变成 proxy({ title: 'reactiveTitle' })
+      const reactiveObj = reactive({ title: 'reactiveTitle' })
+      
+      const handleClick = () => {
+        console.log('touch setup function')
+      }
+
+      // proxy, { title: 'reactiveTitle' } 变成 proxy({ toRefValue: '1111' })
+      let toRefObj = reactive({ toRefValue: '1111' })
+      // toRefs: proxy({ toRefValue: '1111' }) => { toRefValue: proxy({ value: '1111' }) }
+      // proxy({ toRefValue1: '1111', toRefValue2: '2222' })
+      //  => { toRefValue1: proxy({ value: '1111' }), toRefValue2: proxy({ value: '2222' }) }
+      const { toRefValue } = toRefs(toRefObj)
+
+      setTimeout(() => {
+        testValue.value = 'refValue change'
+        reactiveObj.title = `reactiveTitle change`
+        toRefObj.toRefValue = 'xxxx'
+      }, 2000);
+      
+      return {
+        testValue,
+        reactiveObj,
+        handleClick,
+        toRefValue
+      }
+    }
+  })
+
+  const vm = app.mount('#root')
+</script>
+</html>

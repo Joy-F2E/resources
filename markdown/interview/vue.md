@@ -49,6 +49,7 @@
    如何使用 `$attrs` 与 `$listeners` 进行组件通信？
 
    > `$listeners`对象在Vue3中已被移除。事件监听器现在是`$attrs`的一部分
+   > `$attrs` 针对 non-props 属性
 
 ### 父子/兄弟/隔代组件
 
@@ -58,3 +59,7 @@
 
   2. `Vuex`
   3. `本地缓存, eg: localStorage`
+
+## 二. Vue响应式原理
+
+## 三. 发布订阅模式

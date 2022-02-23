@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第06章 Componsition API</title>
+  <script src="https://unpkg.com/vue@next"></script>
+</head>
+<body>
+  <div id="root">
+    <root></root>
+    <child msg="msg" @change="handleChange">Child Component</child>
+  </div>
+</body>
+
+<script>
+  const { reactive, toRef, toRefs, h } = Vue;
+  const app = Vue.createApp({
+    methods: {
+      handleChange() {
+        alert('123456')
+      }
+    },
+  })
+  app.component('root', {
+    template: `
+      <div>
+        <h2>toRef & context参数</h2>
+        <p>name: {{ name }} - {{ age }}</P>
+        <input v-model="inputValue" @change="handleInputValueChange" />
+      </div>
+    `,
+    setup(props, context) {
+      const data = reactive({ name: 'Joy', age: 18, inputValue: '' })
+      const { name, inputValue } = toRefs(data)
+      const age  = toRef(data, 'age')
+      const handleInputValueChange = (e) => {
+        // inputValue = e.target.value
+      }
+      setTimeout(() => {
+        data.name = 'Steph'
+        age.value = 22
+      }, 2000);
+      return {
+        name,
+        age,
+        inputValue,
+        handleInputValueChange
+      }
+    }
+  })
+
+  app.component('child', {
+    template: `<div @click="handleClick">child component</div>`,
+    setup(props, context) {
+      const { attrs, slots, emit } = context;
+      // console.log(attrs.msg); // attrs 传递过来的 non-props属性
+      // return () => h('div', {}, slots.default())
+      const handleClick = () => {emit('change') }
+      return { handleClick }
+    }
+  })
+  const vm = app.mount('#root')
+</script>
+</html>
