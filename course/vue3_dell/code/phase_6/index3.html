@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第06章 Componsition API</title>
+  <script src="https://unpkg.com/vue@next"></script>
+</head>
+<body>
+  <div id="root"></div>
+</body>
+
+<script>
+  // computed 计算属性
+  const app = Vue.createApp({
+    setup(props, context) {
+      const { ref, toRefs, reactive, computed, watch } = Vue;
+      const count = ref(0);
+      // const countAddFive = computed(() => {
+      //   return count.value + 5
+      // })
+      const countAddFive = computed({
+        get: () => {
+          return count.value + 5;
+        },
+        set: (param) => {
+          count.value = param - 5;
+        }
+      })
+      setTimeout(() => {
+        countAddFive.value = 100
+      }, 3000);
+      const handleClick = () => {
+        count.value += 1;
+      }
+      const nameObj = reactive({ name: 'ejy' })
+      watch(() => nameObj.name,  (currentValue, prevValue) => {
+        console.log(currentValue, prevValue);
+      })
+      const { name } = toRefs(nameObj)
+      // const { name } = toRefs(reactive({ name: 'joy' }))
+      // watch(name, (currentValue, prevValue) => {
+      //   console.log(currentValue, prevValue);
+      // })
+      return { count, countAddFive, handleClick, name }
+    },
+    template: `
+      <div>
+        <span @click="handleClick">count: {{ count }}</span>  - <span>countAddFive: {{ countAddFive }}</span>
+        <div>Name:  <input v-model="name" /></div>
+        <div>Name: {{ name }}</div>
+      </div>
+    `
+  })
+
+
+
+  const vm = app.mount('#root')
+</script>
+</html>
