@@ -7,13 +7,52 @@
   <title>第06章 Componsition API</title>
   <script src="https://unpkg.com/vue@next"></script>
 </head>
+
 <body>
   <div id="root"></div>
 </body>
-
 <script>
-  const app = Vue.createApp({})  
+  const { ref, reactive, toRefs } = Vue;
+  // 关于 list 操作的内容进行封装 
+  const listRelativeEffect = () => {
+    const list = reactive([]);
+    const addItemToList = (item) => {
+      list.push(item)
+    }
+    return { list, addItemToList }
+  }
+
+  // 关于 inputValue 操作的内容进行封装
+  const inputRelativeEffect = () => {
+    const inputValue = ref('');
+    const handleInputValueChange = (e) => {
+      inputValue.value = e.target.value;
+    }
+    return { inputValue, handleInputValueChange }
+  }
+  const app = Vue.createApp({
+    setup(props, context) {
+      const { list, addItemToList } = listRelativeEffect();
+      const { inputValue, handleInputValueChange } = inputRelativeEffect();
+      return {
+        inputValue, handleInputValueChange,
+        list, addItemToList
+      }
+    },
+    template: `
+      <div>
+        <div>
+          <input v-model="inputValue" @change="handleInputValueChange" />
+          <button @click="() => addItemToList(inputValue)">提交</button>
+        </div>
+        <ul>
+          <li v-for="(item, index) in list" :key="index">{{ item }}</li>
+        </ul>
+      </div>
+    `
+  })
 
   const vm = app.mount('#root')
 </script>
+
 </html>
