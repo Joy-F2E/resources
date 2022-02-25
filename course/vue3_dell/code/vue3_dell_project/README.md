@@ -1,4 +1,4 @@
-# vue3_dell_demo
+# vue3_dell_project
 
 ## Install and Use
 
