@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第06章 Componsition API</title>
+  <script src="https://unpkg.com/vue@next"></script>
+</head>
+<body>
+  <div id="root"></div>
+</body>
+<script>
+  const app = Vue.createApp({
+    setup(props) {
+      const { reactive, watch, watchEffect, toRefs } = Vue;
+      const nameObj = reactive({ name: 'ejy', englishName: 'joy' });
+      // watch([() => nameObj.name, () => nameObj.englishName ], (curName, prevName) => {
+      //   console.log('watch curName: ', curName, 'prevName: ', prevName)
+      // })
+      // 深度检查嵌套对戏或数组中的property变化，需要设置 deep: true
+      // watch(
+      //   () => nameObj,
+      //   (curName, prevName) => {
+      //     console.log('curName: ', curName, 'prevName: ', prevName)
+      //   },
+      //   { deep: true }
+      // )
+      
+      const watchEffectStop = watchEffect(() => {
+        console.log('name: ', nameObj.name, 'englistName', nameObj.englishName);
+      })
+      setTimeout(() => {
+        watchEffectStop()
+      }, 5000);
+      const { name, englishName } = toRefs(nameObj)
+      
+      return {
+        name,
+        englishName
+      }
+    },
+    template: `
+      <div>
+        <h3>watch 和 watchEffect的使用和差异</h3>
+        <div>
+          <div>
+            Name: <input v-model="name" />  
+          </div>
+          <div>
+            EngLishName: <input v-model="englishName" />  
+          </div>
+        </div>
+      </div>
+    `
+  })
+  const vm = app.mount('#root')
+</script>
+</html>
