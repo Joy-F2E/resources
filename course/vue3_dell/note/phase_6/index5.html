@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第06章 Componsition API</title>
+  <script src="https://unpkg.com/vue@next"></script>
+</head>
+<body>
+  <div id="root"></div>
+</body>
+<script>
+    const app = Vue.createApp({
+    setup(props) {
+      const { ref, provide, readonly } = Vue;
+      const name = ref('joy');
+      provide('name', readonly(name) )
+      provide('changeChildName', (value) => {
+        name.value = value;
+      })
+      return {}
+    },
+    template: `
+      <div>
+        <h3>provide/inject</h3>
+        <child />
+      </div>
+    `
+  })
+
+  app.component('child', {
+    setup(props) {
+      const { inject } = Vue;
+      const name = inject('name');
+      const changeChildName = inject('changeChildName')
+      const handleClick = () => {
+        // name.value = 'xxx' error: name is readonly
+        changeChildName('Ejy')
+      }
+      return { name, handleClick }
+    },
+    template: '<div class="child" @click="handleClick">{{ name }}</div>'
+  })
+  const vm = app.mount('#root')
+</script>
+</html>
